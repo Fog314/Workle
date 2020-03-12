@@ -35,8 +35,6 @@ export default {
   },
   methods:{
     changed(currentPage){
-      console.log(this.currentPage)
-      console.log(this.isLoaded)
       this.currentPage = currentPage
     }
   }

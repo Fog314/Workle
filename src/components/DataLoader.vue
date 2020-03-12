@@ -66,7 +66,6 @@ export default {
       });
   },
   updated: async function load() {
-    console.log(this.isLoaded);
     await unsplash.photos
       .listPhotos(this.currentPage, this.perPage , "latest")
       .then(toJson)
@@ -76,9 +75,6 @@ export default {
         this.currentPage;
       });
   },
-  beforeDestroy: function(){
-    console.log('before')
-  }
 };
 </script>
 
