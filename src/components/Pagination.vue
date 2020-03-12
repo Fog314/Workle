@@ -13,22 +13,13 @@
 </template>
 
 <script>
-import Unsplash, { toJson } from "unsplash-js";
-
-const unsplash = new Unsplash({
-  accessKey: "p4bxahnq0buGn6UMZU7RxBMi7i4zFSYEa3uyBwkys0k",
-});
 
 export default {
-  name: "DataLoader",
+  name: "Pagination",
+  props: ['total','perPage','rangeNumber'],
   data: function() {
     return {
-      isLoaded: false,
-      dataContent: [],
-      total: 17,
-      perPage: 10,
       currentPage: 1,
-      rangeNumber: 2,
     };
   },
   methods:{
@@ -40,19 +31,9 @@ export default {
     },
     changePage(page){
       this.currentPage = page;
-      this.isLoaded = false;
-      this.load();
+    //   this.isLoaded = false;
+      this.$emit("changed", this.currentPage);
     },
-    async load() {
-    await unsplash.photos
-      .listPhotos(this.currentPage, this.perPage, "latest")
-      .then(toJson)
-      .then(json => {
-        this.dataContent = json;
-        this.isLoaded = true;
-        this.currentPage;
-      });
-  },
   },
   computed:{
     pages :function(){
@@ -77,6 +58,18 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang='scss' scoped>
 .footer {
+    ul {
+    list-style-type: none;
+    padding: 0;
+    }
+    li {
+    display: inline-block;
+    margin: 0 10px;
+    }
+    a {
+    color: black;
+    text-decoration: none;
+    }
   position: fixed;
   top: 100%;
   transform: translateY(-100%);

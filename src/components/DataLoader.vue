@@ -28,62 +28,33 @@
       </div>
       <div v-else class="lds-dual-ring"></div>
     </div>
-    <div class="footer">
-      <ul>
-        <li v-if="hasFirst()"><a href ="#" @click="changePage(1)">1</a></li>
-        <li v-if="hasFirst()">...</li>
-        <li v-for="page in pages" :key="page">
-          <a href ="#" @click="changePage(page)" :class="{current : currentPage == page}">{{ page }}</a>
-        </li>
-        <li v-if="hasLast()">...</li>
-        <li v-if="hasLast() "><a href ="#" @click="changePage(total)">{{total}}</a></li>
-      </ul>
-    </div>
   </main>
 </template>
 
 <script>
 import Unsplash, { toJson } from "unsplash-js";
-
 const unsplash = new Unsplash({
   accessKey: "p4bxahnq0buGn6UMZU7RxBMi7i4zFSYEa3uyBwkys0k",
 });
 
 export default {
+  props:{
+    currentPage:{
+      currentPage: Number,
+      default: 1,
+    },
+    loaded:{
+      isLoaded: Boolean,
+    },
+  },
   name: "DataLoader",
   data: function() {
     return {
-      isLoaded: false,
       dataContent: [],
-      total: 17,
-      perPage: 10,
-      currentPage: 1,
-      rangeNumber: 2,
+      isLoaded: this.loaded,
     };
   },
-  methods:{
-    hasFirst: function(){
-      return this.rangeStart !=1
-    },
-    hasLast: function(){
-      return this.rangeEnd < this.total
-    },
-    changePage(page){
-      this.currentPage = page;
-      this.isLoaded = false;
-      this.load();
-    },
-    async load() {
-    await unsplash.photos
-      .listPhotos(this.currentPage, this.perPage, "latest")
-      .then(toJson)
-      .then(json => {
-        this.dataContent = json;
-        this.isLoaded = true;
-        this.currentPage;
-      });
-  },
-  },
+
   mounted: async function load() {
     await unsplash.photos
       .listPhotos(this.currentPage, this.perPage , "latest")
@@ -94,22 +65,19 @@ export default {
         this.currentPage;
       });
   },
-  computed:{
-    pages :function(){
-      let pages = []
-      for (let i=this.rangeStart; i<=this.rangeEnd; i++){
-        pages.push(i)
-      }
-      return pages
-    },
-    rangeStart: function(){
-      let start = this.currentPage - this.rangeNumber
-      return (start >0)? start: 1;
-    },
-    rangeEnd: function(){
-      let end = this.currentPage + this.rangeNumber
-      return (end <= this.total)? end: this.total
-    },
+  updated: async function load() {
+    console.log(this.isLoaded);
+    await unsplash.photos
+      .listPhotos(this.currentPage, this.perPage , "latest")
+      .then(toJson)
+      .then(json => {
+        this.dataContent = json;
+        this.isLoaded = true;
+        this.currentPage;
+      });
+  },
+  beforeDestroy: function(){
+    console.log('before')
   }
 };
 </script>
