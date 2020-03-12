@@ -67,12 +67,8 @@ export default {
       .listPhotos(this.currentPage, this.perPage, "latest")
       .then(toJson)
       .then(json => {
-        this.to;
         console.log(json);
         this.content = json;
-        console.log(toJson.headers.get("x-total"));
-        this.totalPhotos = parseInt(toJson.headers.get("x-total"));
-        console.log(typeof this.dataContent);
         this.isLoaded = true;
       });
   }
