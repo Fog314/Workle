@@ -1,8 +1,8 @@
 <template>
   <main>
-    <div v-bind:style="{maxWidth: '660px', margin: 'auto'}">
+    <div v-bind:style="{maxWidth: '700px', margin: 'auto'}">
       <div class="grid" v-if="isLoaded==true">
-        <div class="wrap" v-for="value in content" :key="value.id">
+        <div class="wrap" v-for="value in dataContent" :key="value.id">
           <div class="infoHeader">
             <div
               v-bind:style="{background:'url('+value.user.profile_image.small+') no-repeat', width:'30px', height: '30px', borderRadius: '50%', display: 'inline-block', position: 'absolute', left: '10px', top:'10px'}"
@@ -28,49 +28,88 @@
       </div>
       <div v-else class="lds-dual-ring"></div>
     </div>
-    <div v-if="isLoaded==true" class="footer">
-      <button>{{p}}</button>
+    <div class="footer">
+      <ul>
+        <li v-if="hasFirst()"><a href ="#" @click="changePage(1)">1</a></li>
+        <li v-if="hasFirst()">...</li>
+        <li v-for="page in pages" :key="page">
+          <a href ="#" @click="changePage(page)" :class="{current : currentPage == page}">{{ page }}</a>
+        </li>
+        <li v-if="hasLast()">...</li>
+        <li v-if="hasLast() "><a href ="#" @click="changePage(total)">{{total}}</a></li>
+      </ul>
     </div>
   </main>
 </template>
 
 <script>
 import Unsplash, { toJson } from "unsplash-js";
-// import _ from 'lodash';
 
 const unsplash = new Unsplash({
   accessKey: "p4bxahnq0buGn6UMZU7RxBMi7i4zFSYEa3uyBwkys0k",
-  // Optionally you can also configure a custom header to be sent with every request
-  headers: {
-    "X-Per-Page": "15",
-    "X-Total": "300"
-  }
 });
 
 export default {
   name: "DataLoader",
-  props: {
-    content: Object
-  },
   data: function() {
     return {
       isLoaded: false,
       dataContent: [],
-      totalPhotos: 0,
+      total: 17,
       perPage: 10,
-      currentPage: 1
+      currentPage: 1,
+      rangeNumber: 2,
     };
   },
-  mounted: async function() {
-    console.log("mounted");
+  methods:{
+    hasFirst: function(){
+      return this.rangeStart !=1
+    },
+    hasLast: function(){
+      return this.rangeEnd < this.total
+    },
+    changePage(page){
+      this.currentPage = page;
+      this.isLoaded = false;
+      this.load();
+    },
+    async load() {
     await unsplash.photos
       .listPhotos(this.currentPage, this.perPage, "latest")
       .then(toJson)
       .then(json => {
-        console.log(json);
-        this.content = json;
+        this.dataContent = json;
         this.isLoaded = true;
+        this.currentPage;
       });
+  },
+  },
+  mounted: async function load() {
+    await unsplash.photos
+      .listPhotos(this.currentPage, this.perPage , "latest")
+      .then(toJson)
+      .then(json => {
+        this.dataContent = json;
+        this.isLoaded = true;
+        this.currentPage;
+      });
+  },
+  computed:{
+    pages :function(){
+      let pages = []
+      for (let i=this.rangeStart; i<=this.rangeEnd; i++){
+        pages.push(i)
+      }
+      return pages
+    },
+    rangeStart: function(){
+      let start = this.currentPage - this.rangeNumber
+      return (start >0)? start: 1;
+    },
+    rangeEnd: function(){
+      let end = this.currentPage + this.rangeNumber
+      return (end <= this.total)? end: this.total
+    },
   }
 };
 </script>
@@ -179,7 +218,7 @@ a {
 
 .wrap {
   height: 304px;
-
+  padding: 0px 10px 0px 10px;
   @media (min-width: 480px) {
     height: 380px;
   }
@@ -194,7 +233,17 @@ a {
   transform: translateY(-100%);
   height: 60px;
   width: 100%;
-  background: red;
+  background: rgba(0, 0, 0, 0.835);
+  li{
+    color: white;
+    font-size: 100%;;
+  }
+  a{
+    color: white;
+      &.current{
+      font-size: 120%;
+      }
+  }
 }
 
 .grid {

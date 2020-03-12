@@ -1,7 +1,6 @@
 <template>
   <div id="app">
     <DataLoader />
-    <Main />
   </div>
 </template>
 
@@ -12,7 +11,6 @@ export default {
   components: {
     DataLoader,
   }
-  
 }
 </script>
 
